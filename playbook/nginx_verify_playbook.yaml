@@ -1,0 +1,18 @@
+---
+- name: Check if Nginx is installed
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Check Nginx installation
+      command: nginx -v
+      register: nginx_check
+      ignore_errors: true
+
+    - name: Print Nginx status
+      debug:
+        msg: >
+          {% if nginx_check.rc == 0 %}
+            Nginx is installed: {{ nginx_check.stderr }}
+          {% else %}
+            Nginx is NOT installed.
+          {% endif %}
