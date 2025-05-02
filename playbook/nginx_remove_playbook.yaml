@@ -25,3 +25,4 @@
     - name: Debug OS Family
       debug:
         msg: "OS family is {{ ansible_facts['os_family'] }}, package manager is {{ ansible_facts['pkg_mgr'] }}"
+        
