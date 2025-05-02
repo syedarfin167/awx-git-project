@@ -1,0 +1,7 @@
+---
+all:
+  hosts:
+    ubuntu-host:
+      ansible_host: 192.168.184.128
+    centos-host:
+      ansible_host: 192.168.184.133
