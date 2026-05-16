@@ -1,42 +1,22 @@
 ---
-- hosts: all
-  become: yes
+- name: Ensure NGINX is installed
+  hosts: all
+  become: true
+  gather_facts: true
+
   tasks:
 
-    - name: Who am I?
-      ansible.builtin.command: whoami
-      register: whoami_result
-
-    - name: Show effective user
-      ansible.builtin.debug:
-        var: whoami_result.stdout
-
-    - name: Gather facts
-      ansible.builtin.setup:
-
-    - name: Install Nginx package for Debian-based systems
+    # -------- Debian / Ubuntu --------
+    - name: Install nginx on Debian/Ubuntu
       ansible.builtin.apt:
         name: nginx
         state: present
         update_cache: yes
       when: ansible_os_family == "Debian"
 
-    - name: Install Nginx package for RedHat-based systems
+    # -------- RHEL / CentOS --------
+    - name: Install nginx on RHEL/CentOS
       ansible.builtin.yum:
         name: nginx
         state: present
-      when: ansible_os_family == "RedHat"
-
-    - name: Start and enable Nginx service for Debian-based systems
-      ansible.builtin.service:
-        name: nginx
-        state: started
-        enabled: yes
-      when: ansible_os_family == "Debian"
-
-    - name: Start and enable Nginx service for RedHat-based systems
-      ansible.builtin.service:
-        name: nginx
-        state: started
-        enabled: yes
       when: ansible_os_family == "RedHat"

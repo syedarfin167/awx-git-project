@@ -1,18 +1,30 @@
 ---
-- name: Check if Nginx is installed
+- name: Check if NGINX is installed on all nodes
   hosts: all
-  gather_facts: false
-  tasks:
-    - name: Check Nginx installation
-      command: nginx -v
-      register: nginx_check
-      ignore_errors: true
+  gather_facts: true
 
-    - name: Print Nginx status
+  tasks:
+
+    - name: Check nginx package on Debian/Ubuntu
+      ansible.builtin.shell: "dpkg -l | grep -w nginx"
+      register: nginx_deb
+      failed_when: false
+      changed_when: false
+      when: ansible_os_family == "Debian"
+
+    - name: Check nginx package on RHEL/CentOS
+      ansible.builtin.shell: "rpm -qa | grep -w nginx"
+      register: nginx_rpm
+      failed_when: false
+      changed_when: false
+      when: ansible_os_family == "RedHat"
+
+    - name: Show result for Debian/Ubuntu
       debug:
-        msg: >
-          {% if nginx_check.rc == 0 %}
-            Nginx is installed: {{ nginx_check.stderr }}
-          {% else %}
-            Nginx is NOT installed.
-          {% endif %}
+        msg: "NGINX is {{ 'installed' if nginx_deb.stdout != '' else 'NOT installed' }}"
+      when: ansible_os_family == "Debian"
+
+    - name: Show result for RHEL/CentOS
+      debug:
+        msg: "NGINX is {{ 'installed' if nginx_rpm.stdout != '' else 'NOT installed' }}"
+      when: ansible_os_family == "RedHat"

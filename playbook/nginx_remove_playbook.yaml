@@ -1,28 +1,25 @@
 ---
-- name: Remove Nginx
+- name: Remove NGINX and related packages
   hosts: all
-  become: yes
+  become: true
+  gather_facts: true
+
   tasks:
-    - name: Ensure Nginx service is stopped
-      ansible.builtin.service:
-        name: nginx
-        state: stopped
-      when: ansible_facts['pkg_mgr'] in ['dnf', 'yum', 'apt']
 
-    - name: Remove Nginx package on Red Hat-based systems
-      ansible.builtin.package:
-        name: nginx
-        state: absent
-      when: ansible_facts['os_family'] == "RedHat"
-
-    - name: Remove Nginx package on Debian-based systems
+    # -------- Debian / Ubuntu --------
+    - name: Remove nginx on Debian/Ubuntu
       ansible.builtin.apt:
-        name: nginx
+        name:
+          - nginx
+          - nginx-core
+          - nginx-common
         state: absent
-        update_cache: yes
-      when: ansible_facts['os_family'] == "Debian"
+        purge: yes
+      when: ansible_os_family == "Debian"
 
-    - name: Debug OS Family
-      debug:
-        msg: "OS family is {{ ansible_facts['os_family'] }}, package manager is {{ ansible_facts['pkg_mgr'] }}"
-        
+    # -------- RHEL / CentOS --------
+    - name: Remove nginx and related packages on RHEL/CentOS
+      ansible.builtin.yum:
+        name: "nginx*"
+        state: absent
+      when: ansible_os_family == "RedHat"
